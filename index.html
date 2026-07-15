@@ -1,683 +1,235 @@
-<!doctype html>
+from pathlib import Path
+import zipfile
+
+html = r'''<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Break the Silence | Digital Activism for Police Accountability</title>
-  <meta name="description" content="Break the Silence is a digital activism campaign raising awareness about police brutality and systemic racism through storytelling, education, and action." />
-
+  <title>Teach OutReach | Colin Powell Academy</title>
+  <meta name="description" content="Teach OutReach is a student-built classroom donation prototype supporting educators at Colin Powell Academy in Fort Washington, Maryland." />
   <style>
     :root{
-      --bg:#0b0d12;
-      --card:#121626;
-      --muted:#9aa4b2;
-      --text:#eef2ff;
-      --accent:#ff3b30;
-      --accent2:#7c3aed;
-      --border:rgba(255,255,255,.10);
-      --shadow: 0 12px 30px rgba(0,0,0,.35);
-      --radius:18px;
+      --ink:#17213f; --muted:#626b84; --paper:#fffdf8;
+      --purple:#6d3ff2; --pink:#ff4fa3; --orange:#ff8a34;
+      --yellow:#ffd84d; --blue:#2f80ed; --cyan:#28d8d2; --green:#42c77a;
+      --border:rgba(23,33,63,.12); --shadow:0 18px 45px rgba(52,34,130,.14);
+      --radius:24px;
     }
     *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
     body{
-      margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
-      background: radial-gradient(1200px 800px at 20% 0%, rgba(124,58,237,.20), transparent 55%),
-                  radial-gradient(1000px 700px at 90% 10%, rgba(255,59,48,.18), transparent 50%),
-                  var(--bg);
-      color:var(--text);
-      line-height:1.6;
+      margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+      color:var(--ink);line-height:1.6;
+      background:
+        radial-gradient(circle at 8% 8%,rgba(255,216,77,.38),transparent 20%),
+        radial-gradient(circle at 92% 7%,rgba(255,79,163,.23),transparent 22%),
+        radial-gradient(circle at 86% 88%,rgba(40,216,210,.24),transparent 24%),
+        linear-gradient(180deg,#fff8ee 0%,#f6f1ff 50%,#effcff 100%);
     }
-    a{color:inherit}
-    header{
-      position:sticky; top:0; z-index:50;
-      backdrop-filter: blur(10px);
-      background: rgba(11,13,18,.72);
-      border-bottom:1px solid var(--border);
-    }
-    .wrap{max-width:1100px; margin:0 auto; padding:16px 18px}
-    .nav{
-      display:flex; align-items:center; justify-content:space-between; gap:16px;
-    }
-    .brand{
-      display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:.3px;
-    }
-    .dot{
-      width:12px; height:12px; border-radius:50%;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      box-shadow: 0 0 0 4px rgba(255,59,48,.14);
-    }
-    nav ul{list-style:none; margin:0; padding:0; display:flex; gap:14px; flex-wrap:wrap}
-    nav a{
-      text-decoration:none;
-      padding:8px 10px;
-      border-radius:12px;
-      color:var(--muted);
-    }
-    nav a:hover{background:rgba(255,255,255,.06); color:var(--text)}
-    .cta{
-      display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:flex-end;
-    }
-    .btn{
-      cursor:pointer;
-      border:1px solid var(--border);
-      background: rgba(255,255,255,.05);
-      color:var(--text);
-      padding:10px 12px;
-      border-radius:14px;
-      font-weight:650;
-      box-shadow: none;
-      transition: transform .08s ease, background .2s ease;
-      text-decoration:none;
-      display:inline-flex; align-items:center; gap:8px;
-    }
-    .btn:hover{background:rgba(255,255,255,.08)}
-    .btn:active{transform: translateY(1px)}
-    .btn.primary{
-      border: none;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      box-shadow: 0 10px 24px rgba(124,58,237,.18);
-    }
-    .btn.primary:hover{filter:brightness(1.03)}
-    .hero{
-      padding:40px 0 18px;
-    }
-    .heroGrid{
-      display:grid;
-      grid-template-columns: 1.2fr .8fr;
-      gap:18px;
-      align-items:stretch;
-    }
-    @media (max-width: 920px){
-      .heroGrid{grid-template-columns:1fr; }
-      .cta{justify-content:flex-start}
-    }
-    .card{
-      background: rgba(18,22,38,.72);
-      border:1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-    }
-    .pad{padding:18px}
-    h1{
-      margin:0 0 10px;
-      font-size: clamp(30px, 3.5vw, 48px);
-      line-height:1.1;
-      letter-spacing:-.5px;
-    }
-    .lead{color:var(--muted); font-size: 1.05rem; margin:0 0 14px}
-    .pillRow{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
-    .pill{
-      font-size:.92rem;
-      padding:8px 10px;
-      border-radius:999px;
-      border:1px solid var(--border);
-      background: rgba(255,255,255,.04);
-      color: var(--muted);
-    }
-    .section{
-      padding:14px 0;
-    }
-    .section h2{
-      margin:0 0 10px;
-      font-size: 1.5rem;
-      letter-spacing:-.2px;
-    }
-    .grid3{
-      display:grid; gap:14px;
-      grid-template-columns: repeat(3, 1fr);
-    }
-    @media (max-width: 900px){ .grid3{grid-template-columns: 1fr} }
-    .kicker{color:var(--muted); font-weight:700; font-size:.92rem; margin-bottom:6px}
-    .small{color:var(--muted); font-size:.98rem}
-    .divider{height:1px; background:var(--border); margin:14px 0}
-    .tag{
-      display:inline-flex; align-items:center; gap:8px;
-      padding:8px 10px;
-      border-radius:12px;
-      border:1px dashed rgba(255,255,255,.16);
-      background: rgba(255,255,255,.03);
-      color: var(--muted);
-      font-size:.95rem;
-    }
-
-    /* ACTION TOOL */
-    .toolRow{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:14px;
-      align-items:start;
-    }
-    @media (max-width: 900px){ .toolRow{grid-template-columns:1fr} }
-    .input, select, textarea{
-      width:100%;
-      padding:12px 12px;
-      border-radius:14px;
-      border:1px solid var(--border);
-      background: rgba(0,0,0,.25);
-      color: var(--text);
-      outline:none;
-    }
-    textarea{min-height:110px; resize:vertical}
-    label{display:block; font-weight:650; margin:10px 0 6px}
-    .helper{color:var(--muted); font-size:.92rem; margin-top:6px}
-    .note{
-      border-left: 3px solid var(--accent);
-      padding:12px 12px;
-      border-radius: 14px;
-      background: rgba(255,59,48,.08);
-      border:1px solid rgba(255,59,48,.18);
-      color: var(--text);
-    }
-
-    /* POSTS */
-    .postGrid{
-      display:grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap:14px;
-    }
-    @media (max-width: 900px){ .postGrid{grid-template-columns:1fr} }
-    .post{
-      display:flex; flex-direction:column; gap:10px;
-      min-height: 190px;
-    }
-    .post .title{font-weight:800}
-    .post .meta{color:var(--muted); font-size:.92rem}
-    .post .copy{color:var(--muted)}
-    .post .hash{margin-top:auto; display:flex; gap:8px; flex-wrap:wrap}
-    .hash span{
-      font-size:.85rem;
-      padding:6px 8px;
-      border-radius:999px;
-      border:1px solid var(--border);
-      background: rgba(255,255,255,.03);
-      color: var(--muted);
-    }
-    footer{
-      padding:26px 0 40px;
-      color: var(--muted);
-    }
-    .twoCol{
-      display:grid; gap:14px;
-      grid-template-columns: 1.1fr .9fr;
-    }
-    @media (max-width: 900px){ .twoCol{grid-template-columns:1fr} }
-    .warn{
-      font-size:.92rem;
-      color: var(--muted);
-    }
+    a{color:inherit}.wrap{max-width:1180px;margin:auto;padding:0 20px}
+    header{position:sticky;top:0;z-index:50;background:rgba(255,253,248,.86);backdrop-filter:blur(16px);border-bottom:1px solid rgba(109,63,242,.12)}
+    .nav{min-height:76px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+    .brand{display:flex;align-items:center;gap:12px;text-decoration:none;font-weight:950;font-size:1.15rem}
+    .logo{width:42px;height:42px;border-radius:15px;display:grid;place-items:center;color:white;background:linear-gradient(135deg,var(--purple),var(--pink),var(--orange));box-shadow:0 10px 25px rgba(109,63,242,.28);transform:rotate(-4deg)}
+    nav ul{list-style:none;display:flex;gap:7px;flex-wrap:wrap;margin:0;padding:0}
+    nav a{text-decoration:none;color:var(--muted);font-weight:800;padding:9px 11px;border-radius:12px}
+    nav a:hover{background:white;color:var(--purple)}
+    .btn{border:0;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border-radius:15px;font-weight:900;transition:.18s ease}
+    .btn:hover{transform:translateY(-2px)}
+    .btn.primary{color:white;background:linear-gradient(135deg,var(--purple),var(--pink));box-shadow:0 12px 28px rgba(109,63,242,.24)}
+    .btn.secondary{background:white;border:1px solid var(--border)}
+    .btn.orange{background:linear-gradient(135deg,var(--orange),var(--yellow));color:#3d2710}
+    .hero{padding:72px 0 36px}.heroGrid{display:grid;grid-template-columns:1.15fr .85fr;gap:24px}
+    .heroCard,.card{background:rgba(255,255,255,.88);border:1px solid rgba(255,255,255,.9);box-shadow:var(--shadow);border-radius:var(--radius)}
+    .heroCopy{padding:42px;position:relative;overflow:hidden}.heroCopy:after{content:"";position:absolute;width:220px;height:220px;border-radius:50%;right:-95px;bottom:-100px;background:linear-gradient(135deg,rgba(40,216,210,.58),rgba(47,128,237,.3))}
+    .eyebrow{display:inline-flex;gap:8px;align-items:center;padding:8px 12px;border-radius:999px;background:#efe8ff;color:var(--purple);font-weight:900;font-size:.9rem}
+    h1{font-size:clamp(2.8rem,5vw,5.5rem);line-height:.96;letter-spacing:-.055em;margin:18px 0}
+    .gradientText{background:linear-gradient(90deg,var(--purple),var(--pink),var(--orange));-webkit-background-clip:text;background-clip:text;color:transparent}
+    .lead{font-size:1.12rem;color:var(--muted)}.heroActions,.chips,.filters{display:flex;gap:10px;flex-wrap:wrap}.heroActions{margin-top:24px}.chips{margin-top:22px}
+    .chip{padding:8px 11px;border-radius:999px;font-weight:850;font-size:.88rem;background:white;border:1px solid var(--border)}
+    .impact{padding:28px;display:flex;flex-direction:column;justify-content:space-between}
+    .impactTop{border-radius:22px;padding:26px;color:white;background:linear-gradient(145deg,var(--purple),#8b4cff 48%,var(--pink))}
+    .impactNumber{font-size:4rem;font-weight:950;line-height:1}
+    .impactGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}.mini{padding:18px;border-radius:18px;font-weight:900;min-height:112px;display:flex;flex-direction:column;justify-content:space-between}
+    .yellow{background:#fff1a8}.cyan{background:#bcf5f3}.orange{background:#ffd5b2}.green{background:#c9f2d9}
+    section{padding:28px 0}.sectionHead{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:18px}.sectionHead h2{font-size:clamp(2rem,3vw,3rem);margin:0;letter-spacing:-.035em}.sectionHead p{margin:0;color:var(--muted);max-width:650px}
+    .missionGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.missionCard{padding:24px;border-radius:22px;min-height:210px}.missionCard:nth-child(1){background:#eee5ff}.missionCard:nth-child(2){background:#ffe1ef}.missionCard:nth-child(3){background:#d7f7f4}.missionCard h3{margin:12px 0 7px}.missionCard p{margin:0;color:#4f5770}.missionIcon{font-size:2rem}
+    .filterBtn{border:1px solid var(--border);background:white;padding:10px 14px;border-radius:999px;font-weight:900;cursor:pointer}.filterBtn.active{background:var(--ink);color:white}
+    .teacherGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.teacher{padding:20px;background:white;border-radius:22px;border:1px solid var(--border);box-shadow:0 12px 28px rgba(52,34,130,.08);display:flex;flex-direction:column;min-height:330px;transition:.18s}.teacher:hover{transform:translateY(-5px)}
+    .avatar{width:66px;height:66px;border-radius:22px;display:grid;place-items:center;color:white;font-weight:950;font-size:1.2rem;background:linear-gradient(135deg,var(--purple),var(--pink))}
+    .teacher:nth-child(4n+2) .avatar{background:linear-gradient(135deg,var(--blue),var(--cyan))}.teacher:nth-child(4n+3) .avatar{background:linear-gradient(135deg,var(--orange),var(--yellow));color:#4f3212}.teacher:nth-child(4n+4) .avatar{background:linear-gradient(135deg,var(--green),var(--cyan));color:#123e31}
+    .teacher h3{margin:14px 0 3px;font-size:1.12rem}.role{font-weight:900;color:var(--purple);font-size:.92rem}.bio{color:var(--muted);font-size:.94rem;flex:1}.email{margin-top:13px;font-size:.82rem;word-break:break-word;text-decoration:none;padding:9px 10px;border-radius:12px;background:#f7f3ff;color:#5231ad;font-weight:800}.selectTeacher{margin-top:10px;width:100%;background:var(--ink);color:white;border:0;padding:10px;border-radius:12px;font-weight:900;cursor:pointer}
+    .donationWrap{display:grid;grid-template-columns:1fr .8fr;gap:20px}.donationForm{padding:30px}
+    label{display:block;font-weight:900;margin:14px 0 7px}select,input,textarea{width:100%;padding:13px 14px;border-radius:14px;border:1px solid var(--border);background:white;color:var(--ink);outline:none}select:focus,input:focus,textarea:focus{border-color:var(--purple);box-shadow:0 0 0 4px rgba(109,63,242,.1)}
+    .amounts{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.amountBtn{border:1px solid var(--border);background:white;padding:12px;border-radius:13px;font-weight:950;cursor:pointer}.amountBtn.active{background:linear-gradient(135deg,var(--orange),var(--yellow));border-color:transparent}
+    .summary{padding:30px;color:white;background:linear-gradient(155deg,var(--ink),#30205d 55%,var(--purple));border-radius:var(--radius);box-shadow:var(--shadow);position:sticky;top:100px;height:max-content}.summaryBox{margin-top:16px;padding:18px;border-radius:18px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14)}.summaryLine{display:flex;justify-content:space-between;gap:12px;margin:9px 0}.disclaimer{margin-top:14px;font-size:.84rem;color:rgba(255,255,255,.72)}
+    .partners{display:grid;grid-template-columns:repeat(5,1fr);gap:13px}.partner{min-height:155px;padding:20px;border-radius:20px;background:white;border:1px solid var(--border);display:flex;flex-direction:column;justify-content:space-between}.partner span{font-size:.9rem;color:var(--muted)}.prospective{display:inline-block;width:max-content;padding:5px 8px;border-radius:999px;background:#fff0c2;color:#7a5310;font-size:.76rem!important;font-weight:900}
+    .schoolInfo{display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:28px;background:linear-gradient(135deg,#dff8ff,#f4e8ff,#fff0c8)}.facts{display:grid;gap:10px}.fact{padding:14px;border-radius:16px;background:rgba(255,255,255,.72);font-weight:850}
+    .notice{padding:14px 16px;border-radius:16px;background:#fff4cc;border:1px solid #f0cf57;color:#604b00;margin-top:16px}
+    footer{padding:38px 0 50px;color:var(--muted)}.footerCard{padding:24px;border-top:1px solid var(--border);display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+    @media(max-width:1000px){.heroGrid,.donationWrap,.schoolInfo{grid-template-columns:1fr}.teacherGrid{grid-template-columns:repeat(2,1fr)}.partners{grid-template-columns:repeat(2,1fr)}.summary{position:static}}
+    @media(max-width:720px){nav{display:none}.hero{padding-top:35px}.heroCopy{padding:27px}.missionGrid,.teacherGrid,.partners{grid-template-columns:1fr}.amounts{grid-template-columns:repeat(2,1fr)}.sectionHead{align-items:start;flex-direction:column}h1{font-size:3.4rem}}
   </style>
 </head>
-
 <body>
-  <header>
-    <div class="wrap nav">
-      <div class="brand">
-        <span class="dot"></span>
-        <span>Break the Silence</span>
-      </div>
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="#top"><span class="logo">TO</span><span>Teach OutReach</span></a>
+    <nav><ul><li><a href="#mission">Mission</a></li><li><a href="#teachers">Teachers</a></li><li><a href="#donate">Donate</a></li><li><a href="#partners">Partners</a></li><li><a href="#school">School</a></li></ul></nav>
+    <a class="btn primary" href="#donate">Support a Teacher</a>
+  </div>
+</header>
 
-      <nav aria-label="Primary">
-        <ul>
-          <li><a href="#mission">Mission</a></li>
-          <li><a href="#learn">Learn</a></li>
-          <li><a href="#action">Take Action</a></li>
-          <li><a href="#posts">Campaign Posts</a></li>
-          <li><a href="#resources">Resources</a></li>
-        </ul>
-      </nav>
+<main id="top">
+<section class="hero"><div class="wrap heroGrid">
+  <div class="heroCard heroCopy">
+    <span class="eyebrow">📚 Fort Washington supporting Fort Washington</span>
+    <h1>Big help for <span class="gradientText">bright classrooms.</span></h1>
+    <p class="lead">Teach OutReach is a student-built community donation prototype connecting supporters with educators at <strong>Colin Powell Academy</strong>. Choose a teacher, select a classroom need, and create a donation pledge.</p>
+    <div class="heroActions"><a class="btn primary" href="#teachers">Meet the Teachers</a><a class="btn orange" href="#donate">Build a Donation</a></div>
+    <div class="chips"><span class="chip">20 public staff profiles</span><span class="chip">PK–8 community</span><span class="chip">Classroom supplies</span><span class="chip">Teacher-centered support</span></div>
+  </div>
+  <aside class="heroCard impact">
+    <div class="impactTop"><div class="impactNumber">20</div><h2>Educators featured</h2><p>Names, roles, and public PGCPS emails from the official faculty directory.</p></div>
+    <div class="impactGrid"><div class="mini yellow">✏️<span>Supplies</span></div><div class="mini cyan">💻<span>Technology</span></div><div class="mini orange">📖<span>Books</span></div><div class="mini green">🎨<span>Creative learning</span></div></div>
+  </aside>
+</div></section>
 
-      <div class="cta">
-        <a class="btn" href="#action">Use Action Tool</a>
-        <a class="btn primary" href="#posts">View Posts</a>
-      </div>
+<section id="mission"><div class="wrap">
+  <div class="sectionHead"><div><span class="eyebrow">Why this matters</span><h2>Community support, made personal.</h2></div><p>Teachers often need flexible resources for books, supplies, technology, creative projects, and student support.</p></div>
+  <div class="missionGrid">
+    <article class="missionCard"><div class="missionIcon">🎯</div><h3>Direct teacher support</h3><p>Select an educator instead of donating into a general pool.</p></article>
+    <article class="missionCard"><div class="missionIcon">🗣️</div><h3>Teacher voices first</h3><p>The long-term vision is for teachers to submit their own classroom needs.</p></article>
+    <article class="missionCard"><div class="missionIcon">🌱</div><h3>Local change that grows</h3><p>Start with one neighborhood school, measure impact, then expand.</p></article>
+  </div>
+</div></section>
+
+<section id="teachers"><div class="wrap">
+  <div class="sectionHead"><div><span class="eyebrow">Official directory information</span><h2>Choose an educator to support.</h2></div><p>The bios are short role descriptions based on publicly listed grades, departments, and subjects—not personal biographies.</p></div>
+  <div class="filters"><button class="filterBtn active" data-filter="all">All 20</button><button class="filterBtn" data-filter="lower">Lower School</button><button class="filterBtn" data-filter="upper">Upper School</button><button class="filterBtn" data-filter="creative">Creative</button><button class="filterBtn" data-filter="support">Specialized Support</button></div>
+  <div class="teacherGrid" id="teacherGrid"></div>
+</div></section>
+
+<section id="donate"><div class="wrap">
+  <div class="sectionHead"><div><span class="eyebrow">Interactive prototype</span><h2>Build your classroom donation.</h2></div><p>This demonstration creates a pledge summary only. It does not process payment.</p></div>
+  <div class="donationWrap">
+    <div class="card donationForm">
+      <label for="teacherSelect">Choose a teacher</label><select id="teacherSelect"></select>
+      <label for="needSelect">Choose a classroom need</label>
+      <select id="needSelect"><option>General classroom supplies</option><option>Books and literacy materials</option><option>STEM and science materials</option><option>Technology and headphones</option><option>Art and creative supplies</option><option>Physical education equipment</option><option>Special education resources</option><option>Student incentives and enrichment</option></select>
+      <label>Choose an amount</label>
+      <div class="amounts"><button class="amountBtn" data-amount="10">$10</button><button class="amountBtn active" data-amount="25">$25</button><button class="amountBtn" data-amount="50">$50</button><button class="amountBtn" data-amount="100">$100</button></div>
+      <label for="customAmount">Or enter a custom amount</label><input id="customAmount" type="number" min="1" placeholder="Example: 35">
+      <label for="donorName">Your name</label><input id="donorName" placeholder="First and last name">
+      <label for="message">Optional message</label><textarea id="message" rows="4" placeholder="Thank you for supporting students in our community!"></textarea>
+      <button class="btn primary" id="pledgeBtn" style="width:100%;margin-top:18px">Create Donation Pledge</button>
+      <div class="notice">Prototype only: connect this form to an approved nonprofit or secure payment processor only after school and district authorization.</div>
     </div>
-  </header>
-
-  <main class="wrap">
-    <!-- HERO -->
-    <section class="hero" id="top">
-      <div class="heroGrid">
-        <div class="card pad">
-          <div class="kicker">Digital Activism • Storytelling • Education • Accountability</div>
-          <h1>Raise awareness. Demand accountability. Push for reform.</h1>
-          <p class="lead">
-            <strong>Break the Silence</strong> is a technology-driven campaign addressing police brutality and systemic racism.
-            We use social platforms to amplify voices, share credible information, and help people take action.
-          </p>
-
-          <div class="pillRow">
-            <span class="pill">#BreakTheSilence</span>
-            <span class="pill">#JusticeForAll</span>
-            <span class="pill">#EndPoliceViolence</span>
-            <span class="pill">Weekly Posting Schedule</span>
-          </div>
-
-          <div class="divider"></div>
-
-          <div class="cta">
-            <a class="btn primary" href="#action">Start Taking Action</a>
-            <button class="btn" id="copyHashtagsBtn" type="button">Copy Hashtags</button>
-          </div>
-
-          <p class="helper" id="copyMsg" aria-live="polite"></p>
-        </div>
-
-        <div class="card pad">
-          <h2 style="margin:0 0 8px">Break The Silence</h2>
-          <p class="small" style="margin:0 0 10px">
-            Breaking the silence is powerful because it exposes harm, amplifies marginalized voices, and drives accountability.
-          </p>
-
-          <div class="divider"></div>
-
-          <div class="tag">🚫 SILENCE</div><br/><br/>
-          <div class="tag">🚫 IS</div><br/><br/>
-          <div class="tag">🚫 INDEED</div><br/><br/>
-          <div class="tag">🚫 VIOLENCE</div>
-
-          <div class="divider"></div>
-          <p class="warn">
-           Don’t be fooled, remaining quiet makes you a part of the oppression. #SpeakUpNow
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <!-- MISSION -->
-    <section class="section" id="mission">
-      <div class="card pad">
-        <h2>Mission</h2>
-        <div class="twoCol">
-          <div>
-            <p class="small">
-              Police brutality and systemic racism harm communities and often go unaddressed. <strong>Break the Silence</strong>
-              uses technology to amplify voices, educate the public, and encourage accountability.
-            </p>
-            <div class="divider"></div>
-            <div class="grid3">
-              <div class="card pad" style="background:rgba(255,255,255,.03); box-shadow:none">
-                <div class="kicker">Expose</div>
-                <div class="small">Highlight ongoing cases and patterns of harm through ethical storytelling.</div>
-              </div>
-              <div class="card pad" style="background:rgba(255,255,255,.03); box-shadow:none">
-                <div class="kicker">Educate</div>
-                <div class="small">Share explainers, definitions, rights information, and reform-focused content.</div>
-              </div>
-              <div class="card pad" style="background:rgba(255,255,255,.03); box-shadow:none">
-                <div class="kicker">Mobilize</div>
-                <div class="small">Provide steps: share, contact reps, support families, attend events, donate.</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="note">
-            <strong>Class alignment (INST 466)</strong><br/>
-            This project uses a web presence + social media distribution to advocate for social justice through technology:
-            scalable messaging, platform amplification, and actionable civic engagement.
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- LEARN -->
-    <section class="section" id="learn">
-      <div class="card pad">
-        <h2>Learn</h2>
-        <p class="small" style="margin-top:0">
-          Understanding the Issue
-        </p>
-
-        <div class="grid3">
-          <div class="card pad" style="background:rgba(255,255,255,.03); box-shadow:none">
-            <div class="kicker">What is systemic racism?</div>
-            <div class="small">
-              Systemic racism refers to policies, practices, and norms that produce unequal outcomes across groups—often
-              even without explicit individual intent.
-            </div>
-          </div>
-          <div class="card pad" style="background:rgba(255,255,255,.03); box-shadow:none">
-            <div class="kicker">Why visibility matters</div>
-            <div class="small">
-              Digital platforms can amplify stories, preserve evidence, and help communities organize—especially when
-              traditional attention fades quickly.
-            </div>
-          </div>
-          <div class="card pad" style="background:rgba(255,255,255,.03); box-shadow:none">
-            <div class="kicker">What accountability can look like</div>
-            <div class="small">
-              Transparent investigations, policy reform, community oversight, better training standards, and de-escalation
-              practices are common reform goals.
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ACTION TOOL -->
-    <section class="section" id="action">
-      <div class="card pad">
-        <h2>Take Action Tool</h2>
-        <p class="small" style="margin-top:0">
-          Choose an action and generate a message you can post or send. (You can screenshot this tool for your assignment.)
-        </p>
-
-        <div class="toolRow">
-          <div>
-            <label for="actionType">Pick an action</label>
-            <select id="actionType">
-              <option value="post">Create a social post</option>
-              <option value="rep">Message a representative</option>
-              <option value="org">Email a local organization</option>
-              <option value="friend">Text a friend to spread awareness</option>
-            </select>
-
-            <label for="topic">Topic focus</label>
-            <input class="input" id="topic" placeholder="Example: accountability, de-escalation, body cams, community oversight" />
-
-            <label for="tone">Tone</label>
-            <select id="tone">
-              <option value="firm">Firm + urgent</option>
-              <option value="informative">Informative</option>
-              <option value="supportive">Supportive</option>
-            </select>
-
-            <label for="custom">Optional details</label>
-            <textarea id="custom" placeholder="Add a case name, city/state, a class concept, or a fact you want included."></textarea>
-
-            <div class="cta" style="margin-top:12px">
-              <button class="btn primary" id="generateBtn" type="button">Generate Message</button>
-              <button class="btn" id="copyBtn" type="button">Copy Output</button>
-            </div>
-            <p class="helper" id="genMsg" aria-live="polite"></p>
-          </div>
-
-          <div>
-            <label for="output">Generated message</label>
-            <textarea id="output" readonly></textarea>
-            <p class="helper">
-                          </p>
-            <div class="note">
-              <strong>Ethical note:</strong> Avoid doxxing, graphic imagery, or unverified claims. Focus on credible information,
-              respect privacy, and promote safe advocacy.
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- POSTS -->
-    <section class="section" id="posts">
-      <div class="card pad">
-        <h2>Campaign Voices & Public Messaging</h2>
-        <p class="small" style="margin-top:0">
-          The content below illustrates how structured messaging, ethical storytelling, and evidence-based advocacy can be used to sustain public attention and promote social change through digital platforms.
-        </p>
-
-        <div class="postGrid" id="postGrid">
-          <!-- JS will inject posts -->
-        </div>
-      </div>
-    </section>
-
-    <!-- RESOURCES -->
-    <section class="section" id="resources">
-      <div class="card pad">
-        <h2>Resources</h2>
-        <p class="small" style="margin-top:0">
-        
-        </p>
-
-       <div class="grid3">
-  <div class="card pad" style="background:rgba(255,255,255,.03); box-shadow:none">
-    <div class="kicker">Know Your Rights</div>
-    <ul class="small">
-      <li>
-        <a href="https://www.aclu.org/know-your-rights" target="_blank">
-          ACLU – Know Your Rights (Police Encounters)
-        </a>
-      </li>
-      <li>
-        <a href="https://www.aclu.org/issues/criminal-law-reform/reforming-police" target="_blank">
-          ACLU – Police Accountability & Reform
-        </a>
-      </li>
-    </ul>
+    <aside class="summary">
+      <span class="eyebrow" style="background:rgba(255,255,255,.14);color:white">Your impact preview</span>
+      <h2>Donation Summary</h2>
+      <div class="summaryBox"><div class="summaryLine"><span>Teacher</span><strong id="sumTeacher">—</strong></div><div class="summaryLine"><span>Need</span><strong id="sumNeed">—</strong></div><div class="summaryLine"><span>Amount</span><strong id="sumAmount">$25.00</strong></div></div>
+      <div class="summaryBox"><strong>What this could help purchase</strong><p id="impactText">Notebooks, pencils, folders, or other everyday classroom materials.</p></div>
+      <p class="disclaimer">No credit-card fields are included. This student project is not affiliated with or endorsed by PGCPS.</p>
+    </aside>
   </div>
+</div></section>
 
-  <div class="card pad" style="background:rgba(255,255,255,.03); box-shadow:none">
-    <div class="kicker">Community Support</div>
-    <ul class="small">
-      <li>
-        <a href="https://campaignzero.org" target="_blank">
-          Campaign Zero – Policy Solutions to End Police Violence
-        </a>
-      </li>
-      <li>
-        <a href="https://www.communityjusticeexchange.org/nbfn-directory" target="_blank">
-          National Bail Fund Network
-        </a>
-      </li>
-    </ul>
+<section id="partners"><div class="wrap">
+  <div class="sectionHead"><div><span class="eyebrow">Organizations to approach</span><h2>Potential community partners.</h2></div><p>Real education-support organizations that fit the mission. They are prospective, not confirmed sponsors.</p></div>
+  <div class="partners">
+    <article class="partner"><span class="prospective">Prospective</span><strong>DonorsChoose</strong><span>Teacher-created classroom projects funded by donors.</span></article>
+    <article class="partner"><span class="prospective">Prospective</span><strong>AdoptAClassroom.org</strong><span>Flexible classroom funding and educator support.</span></article>
+    <article class="partner"><span class="prospective">Prospective</span><strong>First Book</strong><span>Books and learning resources for underserved communities.</span></article>
+    <article class="partner"><span class="prospective">Prospective</span><strong>Kids In Need Foundation</strong><span>School supplies and classroom-resource programs.</span></article>
+    <article class="partner"><span class="prospective">Prospective</span><strong>The Education Trust</strong><span>Research and advocacy focused on educational equity.</span></article>
   </div>
+</div></section>
 
-  <div class="card pad" style="background:rgba(255,255,255,.03); box-shadow:none">
-    <div class="kicker">Policy, Data & Reporting</div>
-    <ul class="small">
-      <li>
-        <a href="https://mappingpoliceviolence.org" target="_blank">
-          Mapping Police Violence (National Data)
-        </a>
-      </li>
-      <li>
-        <a href="https://www.themarshallproject.org" target="_blank">
-          The Marshall Project – Investigative Reporting
-        </a>
-      </li>
-    </ul>
+<section id="school"><div class="wrap">
+  <div class="card schoolInfo">
+    <div><span class="eyebrow">Featured school</span><h2>Colin Powell Academy</h2><p>Public staff information in this prototype comes from the official Colin Powell Academy faculty directory.</p><a class="btn secondary" href="https://www.pgcps.org/schools/colin-powell-academy/faculty-directory-page" target="_blank" rel="noopener">View Official Staff Directory ↗</a></div>
+    <div class="facts"><div class="fact">📍 12200 Fort Washington Road, Fort Washington, MD 20744</div><div class="fact">☎️ 301-850-6402</div><div class="fact">🏫 Prince George's County Public Schools</div><div class="fact">🎓 Elementary and middle-grade students</div></div>
   </div>
-</div>
+</div></section>
+</main>
 
+<footer><div class="wrap footerCard"><div><strong>Teach OutReach</strong><br>Student social-change website prototype</div><div>© <span id="year"></span> • Classroom equity through community action</div></div></footer>
 
-
-        <div class="divider"></div>
-        <p class="small">
-          <strong>
-Break the Silence uses digital storytelling, education, and action-oriented tools to challenge silence, promote accountability, and support community-led reform.
-        </p>
-      </div>
-    </section>
-
-    <footer>
-      <div class="wrap" style="padding:0">
-        <div class="divider"></div>
-        <p style="margin:0">
-          © <span id="year"></span> Break the Silence • Built for INST 466 • Student project website
-        </p>
-      </div>
-    </footer>
-  </main>
-
-  <script>
-    // --- YEAR ---
-    document.getElementById("year").textContent = new Date().getFullYear();
-
-    // --- HASHTAG COPY ---
-    const hashtags = "#BreakTheSilence #JusticeForAll #EndPoliceViolence";
-    const copyHashtagsBtn = document.getElementById("copyHashtagsBtn");
-    const copyMsg = document.getElementById("copyMsg");
-    copyHashtagsBtn.addEventListener("click", async () => {
-      try{
-        await navigator.clipboard.writeText(hashtags);
-        copyMsg.textContent = "Hashtags copied to clipboard.";
-      }catch(e){
-        copyMsg.textContent = "Copy failed. Select and copy manually: " + hashtags;
-      }
-      setTimeout(()=> copyMsg.textContent="", 2400);
-    });
-
-    // --- POSTS (10+) ---
-    const posts = [
-      {
-        title: "Silence protects systems — not people.",
-        meta: "Awareness • Storytelling",
-        copy: "Police brutality and systemic racism aren’t isolated incidents. They’re patterns we must confront with truth, community, and accountability.",
-        tags: ["#BreakTheSilence", "#JusticeForAll"]
-      },
-      {
-        title: "What does accountability mean?",
-        meta: "Education • Reform",
-        copy: "Accountability can include transparent investigations, community oversight, de-escalation standards, and clear consequences for misconduct.",
-        tags: ["#EndPoliceViolence", "#BreakTheSilence"]
-      },
-      {
-        title: "Storytelling is power.",
-        meta: "Humanizing • Community",
-        copy: "Behind every headline is a person, a family, and a community. We honor victims by remembering names and demanding change.",
-        tags: ["#JusticeForAll", "#BreakTheSilence"]
-      },
-      {
-        title: "Know your rights (starter reminder).",
-        meta: "Education • Safety",
-        copy: "Save and share verified know-your-rights resources. Knowledge helps communities stay informed and protected.",
-        tags: ["#JusticeForAll", "#EndPoliceViolence"]
-      },
-      {
-        title: "Small actions add up.",
-        meta: "Action • Engagement",
-        copy: "Share credible info, support affected families, attend local meetings, and contact reps. Consistent action creates pressure for reform.",
-        tags: ["#BreakTheSilence", "#JusticeForAll"]
-      },
-      {
-        title: "Data + truth matter.",
-        meta: "Education • Evidence",
-        copy: "Misinformation spreads fast. This campaign prioritizes credible sources, respectful language, and verified reporting.",
-        tags: ["#BreakTheSilence", "#EndPoliceViolence"]
-      },
-      {
-        title: "Community oversight saves lives.",
-        meta: "Reform • Policy",
-        copy: "Policies like independent review boards and transparent reporting can shift power toward accountability and public trust.",
-        tags: ["#JusticeForAll", "#EndPoliceViolence"]
-      },
-      {
-        title: "De-escalation is not optional.",
-        meta: "Reform • Training",
-        copy: "Training, staffing, and clear protocols reduce harm. Communities deserve safety without fear.",
-        tags: ["#EndPoliceViolence", "#BreakTheSilence"]
-      },
-      {
-        title: "Support families beyond the news cycle.",
-        meta: "Community • Care",
-        copy: "After attention fades, families still live with loss. Donate, share resources, and show up consistently.",
-        tags: ["#JusticeForAll", "#BreakTheSilence"]
-      },
-      {
-        title: "Be loud — but be ethical.",
-        meta: "Digital activism • Responsibility",
-        copy: "Avoid doxxing and unverified claims. Protect privacy, cite sources, and advocate in ways that don’t put people at risk.",
-        tags: ["#BreakTheSilence", "#JusticeForAll"]
-      },
-      {
-        title: "Weekly reminder: take one action today.",
-        meta: "Schedule • Momentum",
-        copy: "Pick one step: share a post, learn a right, contact a rep, or support a local org. Keep the movement moving.",
-        tags: ["#BreakTheSilence", "#EndPoliceViolence"]
-      }
-    ];
-
-    const postGrid = document.getElementById("postGrid");
-    posts.forEach(p => {
-      const el = document.createElement("div");
-      el.className = "card pad post";
-      el.innerHTML = `
-        <div class="title">${p.title}</div>
-        <div class="meta">${p.meta}</div>
-        <div class="copy">${p.copy}</div>
-        <div class="hash">${p.tags.map(t => `<span>${t}</span>`).join("")}</div>
-      `;
-      postGrid.appendChild(el);
-    });
-
-    // --- GENERATOR ---
-    const actionType = document.getElementById("actionType");
-    const topic = document.getElementById("topic");
-    const tone = document.getElementById("tone");
-    const custom = document.getElementById("custom");
-    const output = document.getElementById("output");
-    const generateBtn = document.getElementById("generateBtn");
-    const copyBtn = document.getElementById("copyBtn");
-    const genMsg = document.getElementById("genMsg");
-
-    function buildMessage(){
-      const t = (topic.value || "accountability and reform").trim();
-      const extra = (custom.value || "").trim();
-      const style = tone.value;
-
-      const toneLine = style === "firm"
-        ? "We need urgent accountability and concrete reform—now."
-        : style === "informative"
-          ? "Here’s a quick, fact-focused reminder and a way to get involved."
-          : "This is about protecting communities and supporting families with care and consistency.";
-
-      const baseHashtags = " #BreakTheSilence #JusticeForAll #EndPoliceViolence";
-
-      const type = actionType.value;
-      if(type === "post"){
-        return `Break the Silence: ${toneLine}\n\nToday’s focus: ${t}.\n` +
-          `Share credible info, support affected families, and push for policies that reduce harm.\n` +
-          (extra ? `\nDetails: ${extra}\n` : "\n") +
-          `\nTake one action today: share • learn • contact • show up.\n${baseHashtags}`;
-      }
-
-      if(type === "rep"){
-        return `Subject: Support accountability and public safety reforms\n\n` +
-          `Hello [REP NAME],\n\n` +
-          `${toneLine}\n\n` +
-          `I’m a resident of [YOUR CITY/ZIP]. I’m contacting you to support actions related to ${t}, including transparency, community oversight, and clear standards that reduce harm.\n\n` +
-          `Please share what steps your office is taking and what legislation you support to improve accountability and protect communities.\n` +
-          (extra ? `\nAdditional context: ${extra}\n` : "\n") +
-          `\nSincerely,\n[YOUR NAME]\n[YOUR CONTACT INFO]`;
-      }
-
-      if(type === "org"){
-        return `Subject: Partnering to amplify community resources (Break the Silence)\n\n` +
-          `Hello [ORG NAME],\n\n` +
-          `${toneLine}\n\n` +
-          `I’m building a student-led digital activism project called Break the Silence, focused on raising awareness about police brutality and systemic racism. I’d like to share verified resources your organization provides related to ${t}.\n\n` +
-          `If you’re open to it, please send links, guidance, or upcoming events we can highlight.\n` +
-          (extra ? `\nNotes: ${extra}\n` : "\n") +
-          `\nThank you,\n[YOUR NAME]\n[YOUR CONTACT INFO]`;
-      }
-
-      // friend
-      return `Hey—quick ask. ${toneLine}\n\n` +
-        `I’m following a campaign called Break the Silence focused on ${t}. Can you share one post or read one resource today?\n` +
-        (extra ? `\nExtra: ${extra}\n` : "\n") +
-        `\nHashtags if you post: #BreakTheSilence #JusticeForAll #EndPoliceViolence`;
-    }
-
-    generateBtn.addEventListener("click", () => {
-      output.value = buildMessage();
-      genMsg.textContent = "Message generated. You can copy it now.";
-      setTimeout(()=> genMsg.textContent="", 2400);
-    });
-
-    copyBtn.addEventListener("click", async () => {
-      try{
-        await navigator.clipboard.writeText(output.value || "");
-        genMsg.textContent = "Output copied to clipboard.";
-      }catch(e){
-        genMsg.textContent = "Copy failed. Select the text and copy manually.";
-      }
-      setTimeout(()=> genMsg.textContent="", 2400);
-    });
-
-    // Generate a default message on load
-    output.value = buildMessage();
-  </script>
+<script>
+const teachers=[
+{name:"Erica Madison",role:"Kindergarten Teacher",group:"lower",email:"Erica.Madison@pgcps.org",bio:"Supports early learners as they build foundational literacy, numeracy, classroom routines, and confidence."},
+{name:"Renata Proctor",role:"Kindergarten Teacher",group:"lower",email:"Renata.Proctor@pgcps.org",bio:"Helps kindergarten students develop core academic skills through hands-on, age-appropriate learning."},
+{name:"Chatrice Soard Reeves",role:"Kindergarten Teacher",group:"lower",email:"Chatrice.Soardreeves@pgcps.org",bio:"Guides young students through early academics, social development, and classroom routines."},
+{name:"Iycess Hooper",role:"2nd Grade Teacher",group:"lower",email:"Iycess.Hooper@pgcps.org",bio:"Supports second-grade growth in reading, writing, mathematics, and independent learning habits."},
+{name:"Robert Mitchell",role:"3rd Grade Teacher",group:"lower",email:"robert2.mitchell@pgcps.org",bio:"Works with third graders as they strengthen comprehension, problem-solving, writing, and independence."},
+{name:"Michael Manso",role:"3rd Grade Teacher",group:"lower",email:"Michael.Manso@pgcps.org",bio:"Supports third graders with core academic instruction and increasingly complex learning."},
+{name:"Melesa Gabriel",role:"3rd Grade Teacher",group:"lower",email:"Melesa.Gabriel@pgcps.org",bio:"Guides third-grade learners while encouraging curiosity and academic confidence."},
+{name:"Amber Duncan",role:"3rd Grade Teacher",group:"lower",email:"Amber.Duncan@pgcps.org",bio:"Helps students deepen literacy, mathematics, study skills, and classroom participation."},
+{name:"Tia Kenan-Gunn",role:"4th Grade Teacher",group:"lower",email:"Tia.Kenan@pgcps.org",bio:"Supports fourth graders with advanced reading, writing, mathematics, and project learning."},
+{name:"Amber Diggs",role:"Grade 5 Autism Teacher",group:"support",email:"Amber2.Diggs@pgcps.org",bio:"Provides specialized instruction and structured support for fifth-grade autistic students."},
+{name:"Jada Claud",role:"5th Grade Teacher",group:"lower",email:"Jada.Claud@pgcps.org",bio:"Prepares fifth graders for upper school through rigorous academics and independent learning."},
+{name:"Michelle Brown",role:"Grade 6 ELA & Social Studies",group:"upper",email:"Michelle2.Brown@pgcps.org",bio:"Connects reading, writing, history, and civic understanding for sixth-grade learners."},
+{name:"Addison Taylor",role:"Grade 6 Social Studies",group:"upper",email:"Addison2.Taylor@pgcps.org",bio:"Helps students explore history, geography, culture, and civic participation."},
+{name:"Aurelia Holmes",role:"Grade 7 Math",group:"upper",email:"Aurelia.Holmes@pgcps.org",bio:"Builds mathematical reasoning, problem-solving, and confidence with grade-level concepts."},
+{name:"Kenny Quiroga",role:"Grade 7 Math",group:"upper",email:"Kenny.Quiroga@pgcps.org",bio:"Guides students through seventh-grade mathematics and real-world application."},
+{name:"Krystal Thompson",role:"Grade 7 English Language Arts",group:"upper",email:"Krystal.Thompson@pgcps.org",bio:"Develops reading comprehension, writing, communication, and analysis skills."},
+{name:"Relmond Cobb",role:"Grades 7–8 Science",group:"upper",email:"Relmond.Cobb@pgcps.org",bio:"Engages students in scientific thinking, investigation, evidence, and hands-on learning."},
+{name:"Eric Junhee Na",role:"Grade 8 Math",group:"upper",email:"Junhee.Na@pgcps.org",bio:"Prepares eighth graders for high-school mathematics through conceptual problem-solving."},
+{name:"Yvonne Ellis",role:"Grade 8 English Language Arts",group:"upper",email:"Yvonne.Bolton@pgcps.org",bio:"Strengthens critical reading, evidence-based writing, discussion, and high-school readiness."},
+{name:"Aubree Salters",role:"Upper School Vocal Music",group:"creative",email:"Aubree.Salters@pgcps.org",bio:"Supports creativity, confidence, performance, expression, and collaboration through vocal music."}
+];
+const grid=document.getElementById("teacherGrid"),teacherSelect=document.getElementById("teacherSelect");
+const initials=n=>n.split(" ").map(x=>x[0]).slice(0,2).join("");
+function render(filter="all"){
+  grid.innerHTML="";
+  teachers.filter(t=>filter==="all"||t.group===filter).forEach(t=>{
+    const card=document.createElement("article");card.className="teacher";
+    card.innerHTML=`<div class="avatar">${initials(t.name)}</div><h3>${t.name}</h3><div class="role">${t.role}</div><p class="bio">${t.bio}</p><a class="email" href="mailto:${t.email}">${t.email}</a><button class="selectTeacher" data-name="${t.name}">Choose this teacher</button>`;
+    grid.appendChild(card);
+  });
+}
+teachers.forEach(t=>{const o=document.createElement("option");o.value=t.name;o.textContent=`${t.name} — ${t.role}`;teacherSelect.appendChild(o)});
+render();
+document.querySelectorAll(".filterBtn").forEach(b=>b.onclick=()=>{document.querySelectorAll(".filterBtn").forEach(x=>x.classList.remove("active"));b.classList.add("active");render(b.dataset.filter)});
+grid.onclick=e=>{if(e.target.classList.contains("selectTeacher")){teacherSelect.value=e.target.dataset.name;updateSummary();document.getElementById("donate").scrollIntoView({behavior:"smooth"})}};
+let amount=25;
+const need=document.getElementById("needSelect"),custom=document.getElementById("customAmount");
+function updateSummary(){
+  document.getElementById("sumTeacher").textContent=teacherSelect.value;
+  document.getElementById("sumNeed").textContent=need.value;
+  const finalAmount=Number(custom.value)>0?Number(custom.value):amount;
+  document.getElementById("sumAmount").textContent=`$${finalAmount.toFixed(2)}`;
+  let text="Notebooks, pencils, folders, or other everyday classroom materials.";
+  if(need.value.includes("Books"))text="Books, reading sets, journals, and literacy materials.";
+  if(need.value.includes("STEM"))text="Science materials, math tools, experiment supplies, and hands-on kits.";
+  if(need.value.includes("Technology"))text="Headphones, charging accessories, cases, and classroom technology supports.";
+  if(need.value.includes("Art"))text="Paper, paint, markers, music materials, and creative-learning supplies.";
+  if(need.value.includes("Physical"))text="Balls, cones, jump ropes, and physical-education equipment.";
+  if(need.value.includes("Special"))text="Visual aids, sensory tools, adaptive materials, and specialized learning supports.";
+  if(need.value.includes("incentives"))text="Student recognition items, enrichment activities, and motivational classroom resources.";
+  document.getElementById("impactText").textContent=text;
+}
+document.querySelectorAll(".amountBtn").forEach(b=>b.onclick=()=>{document.querySelectorAll(".amountBtn").forEach(x=>x.classList.remove("active"));b.classList.add("active");amount=Number(b.dataset.amount);custom.value="";updateSummary()});
+teacherSelect.onchange=updateSummary;need.onchange=updateSummary;custom.oninput=updateSummary;
+document.getElementById("pledgeBtn").onclick=()=>{
+  const donor=document.getElementById("donorName").value.trim()||"Community supporter";
+  alert(`Thank you, ${donor}! Your demo pledge for ${document.getElementById("sumAmount").textContent} to support ${teacherSelect.value} has been created. No payment was processed.`);
+};
+document.getElementById("year").textContent=new Date().getFullYear();updateSummary();
+</script>
 </body>
-</html>
+</html>'''
 
+out_dir = Path("/mnt/data/teach-outreach-vibrant")
+out_dir.mkdir(exist_ok=True)
+html_path = out_dir / "index.html"
+html_path.write_text(html, encoding="utf-8")
 
+zip_path = Path("/mnt/data/Teach-OutReach-Vibrant-Website.zip")
+with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as z:
+    z.write(html_path, arcname="Teach-OutReach/index.html")
 
+print(f"Created: {html_path}")
+print(f"Created: {zip_path}")
