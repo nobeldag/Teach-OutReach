@@ -1,4 +1,4 @@
-html = r'''<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -218,15 +218,3 @@ document.getElementById("year").textContent=new Date().getFullYear();updateSumma
 </script>
 </body>
 </html>'''
-
-out_dir = Path("/mnt/data/teach-outreach-vibrant")
-out_dir.mkdir(exist_ok=True)
-html_path = out_dir / "index.html"
-html_path.write_text(html, encoding="utf-8")
-
-zip_path = Path("/mnt/data/Teach-OutReach-Vibrant-Website.zip")
-with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as z:
-    z.write(html_path, arcname="Teach-OutReach/index.html")
-
-print(f"Created: {html_path}")
-print(f"Created: {zip_path}")
